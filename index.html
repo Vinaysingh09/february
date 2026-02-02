@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>One Letter, Seven Pages</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500&display=swap" rel="stylesheet">
+
+<style>
+body {
+    margin: 0;
+    background: linear-gradient(135deg, #ffe6ea, #fff);
+    font-family: 'Dancing Script', cursive;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* 📖 BOOK */
+.book {
+    width: 320px;
+    height: 420px;
+    perspective: 1600px;
+    position: relative;
+    animation: openBook 1.4s ease forwards;
+    transform-origin: center;
+}
+
+/* Book spine */
+.book::before {
+    content: "";
+    position: absolute;
+    left: -10px;
+    top: 0;
+    width: 20px;
+    height: 100%;
+    background: linear-gradient(
+        to right,
+        #e5b3c1,
+        #f8d7df,
+        #fffafc
+    );
+    border-radius: 10px 0 0 10px;
+    z-index: -1;
+}
+
+/* 📄 PAGE */
+.page {
+    width: 100%;
+    height: 100%;
+    background: #fffafc;
+    border-radius: 10px;
+    position: absolute;
+    padding: 30px;
+    box-sizing: border-box;
+    transform-origin: left;
+    transition: transform 1.25s cubic-bezier(.4,0,.2,1);
+    backface-visibility: hidden;
+
+    /* depth & binding */
+    box-shadow:
+        inset 6px 0 8px rgba(0,0,0,0.08),
+        0 18px 35px rgba(0,0,0,0.18);
+}
+
+/* slight stacking offset = thickness illusion */
+.page:nth-child(2) { transform: translateX(1px); }
+.page:nth-child(3) { transform: translateX(2px); }
+.page:nth-child(4) { transform: translateX(3px); }
+.page:nth-child(5) { transform: translateX(4px); }
+
+.page.flipped {
+    transform: rotateY(-180deg);
+}
+
+.page-content {
+    font-size: 22px;
+    line-height: 1.8;
+}
+
+/* Buttons */
+button {
+    margin-top: 25px;
+    padding: 10px 22px;
+    border: none;
+    border-radius: 20px;
+    background: #ff5c8a;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+button:disabled {
+    background: #aaa;
+    cursor: default;
+}
+
+button:hover:not(:disabled) {
+    background: #ff3f75;
+}
+
+/* ❤️ HEART */
+.heart {
+    position: absolute;
+    width: 36px;
+    height: 36px;
+    background: #8b0000;
+    transform: rotate(-45deg);
+    animation: heartbeatRise 3.6s ease forwards;
+    pointer-events: none;
+    filter: drop-shadow(0 0 16px rgba(139,0,0,0,0.8));
+}
+
+.heart::before,
+.heart::after {
+    content: "";
+    position: absolute;
+    width: 36px;
+    height: 36px;
+    background: #8b0000;
+    border-radius: 50%;
+}
+
+.heart::before { top: -18px; left: 0; }
+.heart::after { left: 18px; top: 0; }
+
+/* Heart animation */
+@keyframes heartbeatRise {
+    0% { transform: scale(0.9) rotate(-45deg); opacity: 0; }
+    15% { transform: scale(1.25) rotate(-45deg); opacity: 1; }
+    30% { transform: scale(1) rotate(-45deg); }
+    100% {
+        transform: translateY(-360px) scale(1.7) rotate(-45deg);
+        opacity: 0;
+    }
+}
+
+/* ✨ Book glow */
+.book.glow .page {
+    box-shadow:
+        inset 6px 0 8px rgba(0,0,0,0.08),
+        0 0 28px rgba(255, 90, 120, 0.6);
+}
+
+/* 💬 Final text */
+.final-text {
+    position: absolute;
+    bottom: -60px;
+    width: 100%;
+    text-align: center;
+    font-size: 26px;
+    color: #b3003b;
+    opacity: 0;
+    animation: fadeIn 2s ease forwards;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes openBook {
+    0% {
+        transform: scale(0.94) translateY(20px);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+    }
+}
+
+</style>
+</head>
+
+<body>
+
+<audio id="flipSound" src="https://www.soundjay.com/page-turning-sounds/page-flip-01a.mp3" preload="auto"></audio>
+<audio id="heartSound" src="https://www.soundjay.com/human/sounds/heartbeat-01.mp3" preload="auto"></audio>
+
+<div class="book" id="book"></div>
+
+<script>
+const pages = [
+    "I’ve been wanting to say something for a while now.<br>Not because of a special day, but because some feelings don’t fade.",
+    "Every time we talk, something feels calm and familiar.<br>And I realized it’s not just friendship anymore.",
+    "I don’t know when it happened.<br>Maybe in the small moments we never noticed.",
+    "That’s why I’m saying this slowly.<br>Because real feelings deserve patience.",
+    "You matter to me more than I expected.<br>And that thought stays longer than it should.",
+    "I don’t want to rush you or pressure you.<br>I just wanted you to know the truth.",
+    "So here it is — honestly and simply.<br><strong>I like you.</strong><br><br>Will you be my Valentine?"
+];
+
+const book = document.getElementById("book");
+const flipSound = document.getElementById("flipSound");
+const heartSound = document.getElementById("heartSound");
+
+let currentPage = 0;
+
+/* 📖 Create pages */
+pages.forEach((text, index) => {
+    const page = document.createElement("div");
+    page.className = "page";
+    page.style.zIndex = pages.length - index;
+
+    if (index < pages.length - 1) {
+        page.innerHTML = `
+            <div class="page-content">
+                ${text}
+                <br>
+                <button onclick="turnPage(${index})">Continue</button>
+            </div>`;
+    } else {
+        page.innerHTML = `
+            <div class="page-content">
+                ${text}
+                <button onclick="yesAction(this)">YES ❤️</button>
+            </div>`;
+    }
+
+    book.appendChild(page);
+});
+
+/* 📄 Page turn */
+function turnPage(index) {
+    document.querySelectorAll(".page")[index].classList.add("flipped");
+    flipSound.play();
+    currentPage = index + 1;
+}
+
+/* ❤️ YES action */
+function yesAction(btn) {
+    btn.disabled = true;
+
+    heartSound.play();
+    book.classList.add("glow");
+
+    const rect = book.getBoundingClientRect();
+    const heart = document.createElement("div");
+    heart.className = "heart";
+
+    heart.style.left = rect.left + rect.width / 2 - 18 + "px";
+    heart.style.top = rect.top + rect.height - 40 + "px";
+
+    document.body.appendChild(heart);
+
+    const text = document.createElement("div");
+    text.className = "final-text";
+    text.innerHTML = "My heart is yours ❤️";
+    book.appendChild(text);
+
+    setTimeout(() => {
+        location.href =
+            "https://wa.me/919807985708?text=Yes%20❤️%20My%20heart%20is%20yours.";
+    }, 2000);
+}
+</script>
+
+</body>
+</html>
