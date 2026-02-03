@@ -10,67 +10,112 @@
 <style>
 body {
     margin: 0;
-    background: linear-gradient(135deg, #ffe6ea, #fff);
+    height: 100vh;
     font-family: 'Dancing Script', cursive;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    background:
+        radial-gradient(circle at top, rgba(255,200,215,0.9), transparent 60%),
+        linear-gradient(135deg, #fce4ec, #fff);
     overflow: hidden;
+    position: relative;
+}
+body::before,
+body::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 20% 30%, rgba(255,255,255,0.35), transparent 25%),
+        radial-gradient(circle at 70% 20%, rgba(255,255,255,0.25), transparent 30%),
+        radial-gradient(circle at 40% 70%, rgba(255,255,255,0.2), transparent 35%);
+    animation: floatLights 18s ease-in-out infinite alternate;
+    pointer-events: none;
 }
 
-/* 📖 BOOK */
+@keyframes floatLights {
+    from { transform: translateY(0); }
+    to { transform: translateY(-40px); }
+}
+.page {
+ box-shadow:
+        inset 8px 0 12px rgba(255,180,120,0.08),
+        0 18px 35px rgba(0,0,0,0.18);
+    background:
+        linear-gradient(to right, rgba(0,0,0,0.06), transparent 16%),
+        repeating-linear-gradient(
+            to bottom,
+            #fffafc,
+            #fffafc 22px,
+            #f3e6eb 23px
+        ),
+        url("https://www.transparenttextures.com/patterns/paper-fibers.png");
+}
+/* BOOK */
 .book {
     width: 320px;
     height: 420px;
     perspective: 1600px;
     position: relative;
-    animation: openBook 1.4s ease forwards;
-    transform-origin: center;
+    animation: openBook 1.6s ease forwards;
+	position: relative; /* IMPORTANT */
 }
 
-/* Book spine */
-.book::before {
+/* shadow / table */
+.book::after {
     content: "";
     position: absolute;
-    left: -10px;
-    top: 0;
-    width: 20px;
-    height: 100%;
-    background: linear-gradient(
-        to right,
-        #e5b3c1,
-        #f8d7df,
-        #fffafc
-    );
-    border-radius: 10px 0 0 10px;
+    bottom: -55px;
+    left: -60px;
+    width: 440px;
+    height: 90px;
+    background:
+        radial-gradient(ellipse at center, rgba(0,0,0,0.35), transparent 70%);
+    filter: blur(14px);
     z-index: -1;
 }
 
-/* 📄 PAGE */
+/* PAGE */
 .page {
     width: 100%;
     height: 100%;
-    background: #fffafc;
-    border-radius: 10px;
     position: absolute;
     padding: 30px;
     box-sizing: border-box;
+    background:
+        linear-gradient(to right, rgba(0,0,0,0.05), transparent 14%),
+        repeating-linear-gradient(
+            to bottom,
+            #fffafc,
+            #fffafc 24px,
+            #f8eef2 25px
+        );
+    border-radius: 10px;
     transform-origin: left;
-    transition: transform 1.25s cubic-bezier(.4,0,.2,1);
+    transition: transform 1.3s cubic-bezier(.4,0,.2,1);
     backface-visibility: hidden;
-
-    /* depth & binding */
     box-shadow:
         inset 6px 0 8px rgba(0,0,0,0.08),
         0 18px 35px rgba(0,0,0,0.18);
 }
 
-/* slight stacking offset = thickness illusion */
-.page:nth-child(2) { transform: translateX(1px); }
-.page:nth-child(3) { transform: translateX(2px); }
-.page:nth-child(4) { transform: translateX(3px); }
-.page:nth-child(5) { transform: translateX(4px); }
+/* page curl */
+.page::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(-45deg, rgba(0,0,0,0.12), transparent);
+    clip-path: polygon(100% 0, 0 100%, 100% 100%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+.page:hover::after {
+    opacity: 1;
+}
 
 .page.flipped {
     transform: rotateY(-180deg);
@@ -81,10 +126,9 @@ body {
     line-height: 1.8;
 }
 
-/* Buttons */
 button {
     margin-top: 25px;
-    padding: 10px 22px;
+    padding: 8px 20px;
     border: none;
     border-radius: 20px;
     background: #ff5c8a;
@@ -92,85 +136,141 @@ button {
     font-size: 16px;
     cursor: pointer;
 }
-
 button:disabled {
-    background: #aaa;
+    opacity: 0.6;
     cursor: default;
 }
 
-button:hover:not(:disabled) {
-    background: #ff3f75;
-}
-
-/* ❤️ HEART */
+/* HEART */
 .heart {
     position: absolute;
-    width: 36px;
-    height: 36px;
+    width: 34px;
+    height: 34px;
     background: #8b0000;
     transform: rotate(-45deg);
-    animation: heartbeatRise 3.6s ease forwards;
+    animation: heartBeat 0.6s ease-out, rise 3.2s ease-out forwards;
     pointer-events: none;
-    filter: drop-shadow(0 0 16px rgba(139,0,0,0,0.8));
+    filter: drop-shadow(0 0 14px rgba(139,0,0,0,0.8));
 }
 
 .heart::before,
 .heart::after {
     content: "";
     position: absolute;
-    width: 36px;
-    height: 36px;
+    width: 34px;
+    height: 34px;
     background: #8b0000;
     border-radius: 50%;
 }
+.heart::before { top: -17px; left: 0; }
+.heart::after { left: 17px; top: 0; }
 
-.heart::before { top: -18px; left: 0; }
-.heart::after { left: 18px; top: 0; }
-
-/* Heart animation */
-@keyframes heartbeatRise {
-    0% { transform: scale(0.9) rotate(-45deg); opacity: 0; }
-    15% { transform: scale(1.25) rotate(-45deg); opacity: 1; }
-    30% { transform: scale(1) rotate(-45deg); }
-    100% {
-        transform: translateY(-360px) scale(1.7) rotate(-45deg);
-        opacity: 0;
-    }
-}
-
-/* ✨ Book glow */
-.book.glow .page {
+/* glow */
+.book.glow {
     box-shadow:
-        inset 6px 0 8px rgba(0,0,0,0.08),
-        0 0 28px rgba(255, 90, 120, 0.6);
+        0 0 25px rgba(255,120,150,0.6),
+        0 0 60px rgba(255,120,150,0.35);
 }
 
-/* 💬 Final text */
-.final-text {
+/* text fade */
+.love-text {
     position: absolute;
-    bottom: -60px;
+    top: 20%;
     width: 100%;
     text-align: center;
-    font-size: 26px;
-    color: #b3003b;
+    font-size: 34px;
     opacity: 0;
-    animation: fadeIn 2s ease forwards;
+    animation: fadeText 2.4s ease forwards;
+    color: #b3002d;
 }
 
-/* Animations */
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
+/* animations */
 @keyframes openBook {
-    0% {
-        transform: scale(0.94) translateY(20px);
-        opacity: 0;
-    }
-    100% {
-        transform: scale(1) translateY(0);
-        opacity: 1;
+    from { transform: scale(0.95) translateY(20px); opacity: 0; }
+    to { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+@keyframes heartBeat {
+    0% { transform: scale(1) rotate(-45deg); }
+    50% { transform: scale(1.25) rotate(-45deg); }
+    100% { transform: scale(1) rotate(-45deg); }
+}
+
+@keyframes rise {
+    from { transform: translateY(0) scale(1) rotate(-45deg); opacity: 1; }
+    to { transform: translateY(-340px) scale(1.7) rotate(-45deg); opacity: 0; }
+}
+
+@keyframes fadeText {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+.love-text {
+    position: absolute;
+    top: -60px;              /* sits above the book */
+    left: 0;
+    width: 100%;
+    text-align: center;
+    font-size: 30px;
+    color: #b3002d;
+    opacity: 0;
+    animation: fadeText 2.2s ease forwards;
+    pointer-events: none;    /* never blocks clicks */
+}
+@keyframes fadeText {
+    0% { opacity: 0; transform: translateY(10px); }
+    30% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; }
+}
+.candle {
+    position: absolute;
+    bottom: 10px;
+    right: -45px;
+    width: 20px;
+    height: 60px;
+    background: #f5e6c8;
+    border-radius: 6px;
+    box-shadow:
+        inset 0 -6px 8px rgba(0,0,0,0.15),
+        0 0 8px rgba(255,200,120,0.4);
+    z-index: 5;
+}
+
+
+.candle::after {
+    content: "";
+    position: absolute;
+    top: -18px;
+    left: 50%;
+    width: 12px;
+    height: 22px;
+    background: radial-gradient(circle at 50% 30%, #ffd27d, #ff8c00 65%);
+    transform: translateX(-50%);
+    border-radius: 50% 50% 50% 50%;
+    animation: flicker 0.15s infinite alternate;
+    box-shadow: 0 0 20px rgba(255,140,0,0.9);
+}
+
+
+@keyframes flicker {
+    0% { transform: translateX(-50%) scaleY(1); opacity: 0.9; }
+    100% { transform: translateX(-50%) scaleY(1.1); opacity: 1; }
+}
+.petal {
+    position: absolute;
+    top: -40px;
+    width: 14px;
+    height: 18px;
+    background: radial-gradient(circle at 30% 30%, #ff7a9c, #b3002d);
+    border-radius: 60% 40% 60% 40%;
+    opacity: 0.25;
+    animation: fall linear infinite;
+    pointer-events: none;
+}
+
+@keyframes fall {
+    to {
+        transform: translateY(110vh) rotate(360deg);
     }
 }
 
@@ -179,61 +279,61 @@ button:hover:not(:disabled) {
 
 <body>
 
-<audio id="flipSound" src="https://www.soundjay.com/page-turning-sounds/page-flip-01a.mp3" preload="auto"></audio>
-<audio id="heartSound" src="https://www.soundjay.com/human/sounds/heartbeat-01.mp3" preload="auto"></audio>
+<audio id="flipSound" src="https://www.soundjay.com/page-turning-sounds/page-flip-01a.mp3"></audio>
+<audio id="heartSound" src="https://www.soundjay.com/human/sounds/heartbeat-01.mp3"></audio>
+<audio id="bgMusic" src="https://www.soundjay.com/nature/sounds/soft-rain-ambient-01.mp3" loop></audio>
 
-<div class="book" id="book"></div>
+<div class="book" id="book">
+    <div class="candle"></div>
+</div>
 
+	
 <script>
 const pages = [
-    "I’ve been wanting to say something for a while now.<br>Not because of a special day, but because some feelings don’t fade.",
-    "Every time we talk, something feels calm and familiar.<br>And I realized it’s not just friendship anymore.",
-    "I don’t know when it happened.<br>Maybe in the small moments we never noticed.",
-    "That’s why I’m saying this slowly.<br>Because real feelings deserve patience.",
-    "You matter to me more than I expected.<br>And that thought stays longer than it should.",
-    "I don’t want to rush you or pressure you.<br>I just wanted you to know the truth.",
-    "So here it is — honestly and simply.<br><strong>I like you.</strong><br><br>Will you be my Valentine?"
+"I’ve been wanting to say something for a while now.",
+"Every time we talk, something feels calm and familiar.",
+"I don’t know when it happened.",
+"Real feelings deserve patience.",
+"You matter to me more than I expected.",
+"I just wanted you to know the truth.",
+"So here it is — <strong>I like you.</strong><br><br>Will you be my Valentine?"
 ];
 
 const book = document.getElementById("book");
 const flipSound = document.getElementById("flipSound");
 const heartSound = document.getElementById("heartSound");
+const bgMusic = document.getElementById("bgMusic");
 
-let currentPage = 0;
+document.addEventListener("click", () => {
+    if (bgMusic.paused) {
+        bgMusic.volume = 0.15;
+        bgMusic.play();
+    }
+}, { once: true });
 
-/* 📖 Create pages */
 pages.forEach((text, index) => {
     const page = document.createElement("div");
     page.className = "page";
     page.style.zIndex = pages.length - index;
 
-    if (index < pages.length - 1) {
-        page.innerHTML = `
-            <div class="page-content">
-                ${text}
-                <br>
-                <button onclick="turnPage(${index})">Continue</button>
-            </div>`;
-    } else {
-        page.innerHTML = `
-            <div class="page-content">
-                ${text}
-                <button onclick="yesAction(this)">YES ❤️</button>
-            </div>`;
-    }
-
+    page.innerHTML = `
+        <div class="page-content">
+            ${text}
+            ${index < pages.length - 1
+                ? `<br><button onclick="turnPage(${index})">Continue</button>`
+                : `<br><button id="yesBtn" onclick="yesAction()">YES ❤️</button>`
+            }
+        </div>`;
     book.appendChild(page);
 });
 
-/* 📄 Page turn */
 function turnPage(index) {
     document.querySelectorAll(".page")[index].classList.add("flipped");
     flipSound.play();
-    currentPage = index + 1;
 }
 
-/* ❤️ YES action */
-function yesAction(btn) {
+function yesAction() {
+    const btn = document.getElementById("yesBtn");
     btn.disabled = true;
 
     heartSound.play();
@@ -242,22 +342,30 @@ function yesAction(btn) {
     const rect = book.getBoundingClientRect();
     const heart = document.createElement("div");
     heart.className = "heart";
-
-    heart.style.left = rect.left + rect.width / 2 - 18 + "px";
+    heart.style.left = rect.left + rect.width / 2 - 17 + "px";
     heart.style.top = rect.top + rect.height - 40 + "px";
-
     document.body.appendChild(heart);
 
-    const text = document.createElement("div");
-    text.className = "final-text";
-    text.innerHTML = "My heart is yours ❤️";
-    book.appendChild(text);
+const text = document.createElement("div");
+text.className = "love-text";
+text.innerHTML = "My heart is yours ❤️";
+book.appendChild(text);
 
     setTimeout(() => {
-        location.href =
-            "https://wa.me/919807985708?text=Yes%20❤️%20My%20heart%20is%20yours.";
-    }, 2000);
+        heart.remove();
+        text.remove();
+        book.classList.remove("glow");
+    }, 3800);
 }
+setInterval(() => {
+    const petal = document.createElement("div");
+    petal.className = "petal";
+    petal.style.left = Math.random() * 100 + "vw";
+    petal.style.animationDuration = 12 + Math.random() * 8 + "s";
+    document.body.appendChild(petal);
+
+    setTimeout(() => petal.remove(), 20000);
+}, 1800);
 </script>
 
 </body>
